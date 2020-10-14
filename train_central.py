@@ -71,3 +71,4 @@ if __name__ == '__main__':
     model_out = os.path.join('models', runtimestamp)
     torch.save(model, model_out)
 
+

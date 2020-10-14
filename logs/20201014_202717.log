@@ -1,7 +1,0 @@
-2020-10-14 20:27:17,054 INFO     Experiment started
-2020-10-14 20:27:17,055 INFO     Namespace(batch_size=1024, epochs=5, lr=0.01)
-2020-10-14 20:27:30,389 INFO     Epoch : 0, Validation Accuracy: 0.08330887636242194
-2020-10-14 20:27:31,235 INFO     Epoch : 1, Validation Accuracy: 0.08220240926463791
-2020-10-14 20:27:32,079 INFO     Epoch : 2, Validation Accuracy: 0.09625589075661435
-2020-10-14 20:27:33,043 INFO     Epoch : 3, Validation Accuracy: 0.10237519354740773
-2020-10-14 20:27:33,905 INFO     Epoch : 4, Validation Accuracy: 0.10528304305438893
