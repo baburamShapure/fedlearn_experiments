@@ -1,0 +1,2 @@
+2020-10-14 20:50:02,093 INFO     Experiment started
+2020-10-14 20:50:02,094 INFO     Hyper-parameters: Namespace(batch_size=128, epochs=5, lr=0.01)
