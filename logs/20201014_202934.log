@@ -1,0 +1,12 @@
+2020-10-14 20:29:34,807 INFO     Experiment started
+2020-10-14 20:29:34,807 INFO     Hyper-parameters: Namespace(batch_size=1024, epochs=5, lr=0.01)
+2020-10-14 20:29:46,362 INFO     Model architecture: FFN(
+  (linear1): Linear(in_features=26, out_features=128, bias=True)
+  (linear2): Linear(in_features=128, out_features=64, bias=True)
+  (out): Linear(in_features=64, out_features=10, bias=True)
+)
+2020-10-14 20:29:47,232 INFO     Epoch : 0, Validation Accuracy: 0.06933972925289857
+2020-10-14 20:29:48,111 INFO     Epoch : 1, Validation Accuracy: 0.07279406555817554
+2020-10-14 20:29:48,900 INFO     Epoch : 2, Validation Accuracy: 0.0817098964711121
+2020-10-14 20:29:49,728 INFO     Epoch : 3, Validation Accuracy: 0.09760186750056504
+2020-10-14 20:29:50,540 INFO     Epoch : 4, Validation Accuracy: 0.11192184564109312

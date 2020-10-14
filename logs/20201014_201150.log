@@ -1,0 +1,2 @@
+2020-10-14 20:11:50,108 INFO     Experiment started
+2020-10-14 20:11:50,109 INFO     Namespace(batch_size=1024, epochs=1, lr=0.01)
