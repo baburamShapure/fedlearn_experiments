@@ -1,2 +1,3 @@
-# fedlearn_experiments
+# Federated Learning
+
 Our experiments with federated learning
