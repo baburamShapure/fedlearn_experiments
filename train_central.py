@@ -50,8 +50,8 @@ if __name__ == '__main__':
     logger.info('Hyper-parameters: {0}'.format(args))
     # read data. 
     trainData, testData = prepareData()
-    trainHAR = HARData(trainData.head())
-    testHAR = HARData(testData.head())
+    trainHAR = HARData(trainData)
+    testHAR = HARData(testData)
 
     trainLoad, testLoad = getDataLoader(trainHAR, testHAR, args.batch_size)
     model = FFN(26, 10)
