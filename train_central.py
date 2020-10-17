@@ -16,22 +16,6 @@ import logging
 import argparse
 import datetime as dt 
 
-def train_central_one_epoch(model, trainloader, testdata, optimizer, loss):
-    for i, (x, y) in tqdm.tqdm(enumerate(trainloader), total=len(trainloader)):
-        yhat = model(x)
-        batch_loss = loss(yhat, y)
-        optimizer.zero_grad()
-        batch_loss.backward()
-        optimizer.step()
-    # evaluate on test dataset. 
-
-    with torch.no_grad():
-        oos_scores = model(torch.FloatTensor(testdata.iloc[:, :-1].values))
-    oos_preds = torch.max(oos_scores, 1)[1].numpy()    
-
-    acc = metrics.accuracy_score(testData['Activity'], oos_preds)
-    return acc     
-
 if __name__ == '__main__': 
 
     runtimestamp = dt.datetime.strftime(dt.datetime.today(), 
@@ -48,13 +32,20 @@ if __name__ == '__main__':
     args = args_parser()
     logger.info('Experiment started')
     logger.info('Hyper-parameters: {0}'.format(args))
-    # read data. 
-    trainData, testData = prepareData()
-    trainHAR = HARData(trainData)
-    testHAR = HARData(testData)
+    
+    # read data.
+    if args.dataset == 'hhar' :
+        trainData, testData = prepareData(r'fl_data\HHAR')
+        trainHAR = HARData(trainData)
+        testHAR = HARData(testData)
+        input_dim = 48
+        nclasses = 10
+    else:
+        #TODO other datasets here. Write better switch cases
+        pass 
 
     trainLoad, testLoad = getDataLoader(trainHAR, testHAR, args.batch_size)
-    model = FFN(26, 10)
+    model = FFN(input_dim, nclasses)
     logger.info('Model architecture: {0}'.format(model))
     optimizer = optim.Adam(model.parameters(), lr=args.lr )
     loss = nn.CrossEntropyLoss()
@@ -62,7 +53,7 @@ if __name__ == '__main__':
     for epoch in range(args.epochs):
         acc = train_central_one_epoch(model= model, 
                                 trainloader=trainLoad,
-                                testdata=testData, 
+                                testloader=testLoad, 
                                 optimizer=optimizer,
                                 loss = loss
                                 )

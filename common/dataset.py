@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import Dataset
 import numpy as np 
 
-def prepareData(datadir = 'data/FL_data'):
+def prepareData(datadir):
     # read train data from each folder. 
     trainlist = [] 
     testlist = [] 
@@ -26,11 +26,11 @@ class HARData(Dataset):
         return self.data.shape[0]
 
     def __getitem__(self, idx):
-        row = self.data.iloc[idx]
-        floats = row.drop(["Activity"]).values.astype(np.float32)
+        row = self.data.iloc[idx, 1:]
+        floats = row.drop(["response"]).values.astype(np.float32)
         data = torch.tensor(floats)
 
-        y_val = self.data.iloc[idx]["Activity"]
+        y_val = self.data.iloc[idx]["response"]
         y = torch.tensor(y_val, dtype=torch.long)
         return data, y
 
