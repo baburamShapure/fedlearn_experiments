@@ -25,6 +25,7 @@ standard_deviation, min and max over the x, y & z measurements.
 
 This has a similar effect of a 100 hz sampling rate. 
 """
+
 import pandas as pd 
 import os 
 import numpy as np 
@@ -52,11 +53,18 @@ def aggregate(df, prefix):
     summary.columns = [i  if len(i) == 0 or type(i)==str  else  '_'.join([prefix] + list(i)) for i in list(summary.columns.to_flat_index())]
     return summary
 
+#TODO: Label encoding. 
+CLASSMAPS = {'bike':0, 'sit': 1, 
+                'stairsup': 2, 'stairsdown':3,
+                 'stand':4, 'walk': 5}
+
+
 HHAR_DATADIR = 'rawdata/HHAR/'
 HHAR_OUTDIR = 'fl_data/HHAR'
 PROP_TRAIN = 0.8
 filesToRead = [os.path.join(HHAR_DATADIR, i) for i in os.listdir(HHAR_DATADIR) if i[-3:] == 'csv']
 dataList = [pd.read_csv(each_file) for each_file in filesToRead]
+
 
 USERS = list(string.ascii_letters[:9])
 PREFIX = ['phone_acc', 'phone_gyro', 'watch_acc', 'watch_gyro']
@@ -81,6 +89,8 @@ for each_user in USERS:
         if each_user not in os.listdir(HHAR_OUTDIR): 
                 os.mkdir(os.path.join(HHAR_OUTDIR, each_user))
 
+        joined['response'] = joined['gt'].map(CLASSMAPS)
+        joined = joined.drop('gt', axis  = 1)
         # shuffle the data first to break correlation. 
         joined = joined.sample(frac = 1)
         # train test split. 
@@ -90,3 +100,5 @@ for each_user in USERS:
         train.to_csv(os.path.join(HHAR_OUTDIR, each_user,  'train.csv'), index = None)
         test.to_csv(os.path.join(HHAR_OUTDIR, each_user,  'test.csv'), index = None)
         
+
+
