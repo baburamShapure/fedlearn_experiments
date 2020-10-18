@@ -14,6 +14,9 @@ def prepareData(datadir):
         testlist.append(pd.read_csv(os.path.join(datadir, each_folder, test)))
     trainData = pd.concat(trainlist)
     testData = pd.concat(testlist)
+    #TODO: there are nans in the dataset. investigate in next iteration. 
+    trainData = trainData.fillna(0)
+    testData = testData.fillna(0)    
     return trainData, testData
 
 

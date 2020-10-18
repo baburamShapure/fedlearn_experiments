@@ -3,6 +3,7 @@ import argparse
 import tqdm 
 import sklearn.metrics as metrics 
 import torch
+import scipy as sp 
 
 def args_parser():
     parser = argparse.ArgumentParser()
@@ -15,19 +16,26 @@ def args_parser():
     return args
 
 
-def getDataLoader(train, test, train_batch = 512, test_batch = 1000):
+def getDataLoader(train, test, train_batch = 512, test_batch = 2048):
     trainLoad = DataLoader(train, batch_size=train_batch, shuffle=True)
     testLoad = DataLoader(test, batch_size= test_batch)
 
     return trainLoad, testLoad
 
 def train_central_one_epoch(model, trainloader, testloader, optimizer, loss):
+
+    model.train()
     for i, (x, y) in tqdm.tqdm(enumerate(trainloader), total=len(trainloader)):
+        # print('Num nans ', torch.sum(torch.isnan(x)))
         yhat = model(x)
         batch_loss = loss(yhat, y)
+        # print('Batch loss: {0}'.format(batch_loss))
         optimizer.zero_grad()
         batch_loss.backward()
         optimizer.step()
+
+        # print('Last layer weight norm: {0}'.format(sp.linalg.norm(model.state_dict()['out.weight'].numpy().reshape(-1, 1))))
+        # print(model.state_dict()['out.weight'])
     # evaluate on test dataset. 
     acc = get_accuracy(model, testloader)
     return acc     
@@ -38,15 +46,18 @@ def get_accuracy(model, loader):
     outputs a list of minibatch losses. 
     Use these to plot standard errors. 
     """ 
+    model.eval()
     acc_list = []
     for i, (x, y) in enumerate(loader):
         with torch.no_grad():
             oos_scores = model(x)
         oos_preds = torch.max(oos_scores, 1)[1].numpy()  
         # won't work with a gpu.   
-        acc = metrics.accuracy_score(y.cpu().numpy(), oos_preds)
+        acc = metrics.accuracy_score(y.numpy(), oos_preds)
         acc_list.append(acc)
     return acc_list
+
+
 
 
 
