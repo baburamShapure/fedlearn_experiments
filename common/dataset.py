@@ -5,19 +5,20 @@ from torch.utils.data import Dataset
 import numpy as np 
 
 def prepareData(datadir):
-    # read train data from each folder. 
+    """read train data from each folder. 
+    traindata is a single dataframe while testdata is a dict of dataframe
+    """
     trainlist = [] 
-    testlist = [] 
+    testlist = {} 
     for each_folder in os.listdir(datadir): 
         test, train = os.listdir(os.path.join(datadir, each_folder))
         trainlist.append(pd.read_csv(os.path.join(datadir, each_folder, train)))
-        testlist.append(pd.read_csv(os.path.join(datadir, each_folder, test)))
+        tmp = pd.read_csv(os.path.join(datadir, each_folder, test))
+        testlist[each_folder] = tmp.fillna(0)
     trainData = pd.concat(trainlist)
-    testData = pd.concat(testlist)
-    #TODO: there are nans in the dataset. investigate in next iteration. 
     trainData = trainData.fillna(0)
-    testData = testData.fillna(0)    
-    return trainData, testData
+   
+    return trainData, testlist
 
 
 class HARData(Dataset): 

@@ -1,0 +1,8 @@
+2020-10-21 11:06:45,907 INFO     Experiment started
+2020-10-21 11:06:45,908 INFO     Hyper-parameters: Namespace(batch_size=512, dataset='hhar', epochs=1, lr=0.01)
+2020-10-21 11:06:49,731 INFO     Model architecture: FFN(
+  (linear1): Linear(in_features=48, out_features=128, bias=True)
+  (bn1): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (linear2): Linear(in_features=128, out_features=64, bias=True)
+  (out): Linear(in_features=64, out_features=10, bias=True)
+)
