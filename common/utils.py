@@ -15,11 +15,22 @@ def args_parser():
     args = parser.parse_args()
     return args
 
-def getDataLoader(train, train_batch = 512):
-    trainLoad = DataLoader(train, batch_size=train_batch, shuffle=True)
-    return trainLoad
+def getDataLoader(train, test, train_batch = 512, train_batch_federated=128, test_batch = 1024):
+    if type(train) == 'dict':
+        trainLoad = {}
+        testLoad = {}
+        for k in train.keys(): 
+            trainLoad[k] = DataLoader(train[k], batch_size= train_batch_federated, shuffle = True )
+    else:
+        trainLoad = DataLoader(train, batch_size=train_batch, shuffle=True)
+    
+        for k in test.keys(): 
+            testLoad[k] = DataLoader(test[k], batch_size= 1024, shuffle = True )
+    
 
-def train_central_one_epoch(model, trainloader, optimizer, loss):
+    return trainLoad, testLoad
+
+def train_one_epoch(model, trainloader, optimizer, loss):
     model.train()
     for i, (x, y) in tqdm.tqdm(enumerate(trainloader), total=len(trainloader)):
         # print('Num nans ', torch.sum(torch.isnan(x)))

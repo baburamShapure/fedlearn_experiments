@@ -37,36 +37,34 @@ if __name__ == '__main__':
     
     # read data.
     if args.dataset == 'hhar' :
-        trainData, testData  = prepareData(r'fl_data\HHAR')
-        trainHAR = HARData(trainData)
-        testHAR = {}
-        for k in testData.keys():
-            testHAR[k] = HARData(testData[k])
+        datadir = r'fl_data\HHAR'
         input_dim = 48
         nclasses = 10
     else:
         #TODO other datasets here. Write better switch cases
         pass 
 
-    trainLoad = getDataLoader(trainHAR, args.batch_size)
-    testLoad = {}
-    for k in testHAR.keys(): 
-        testLoad[k] = getDataLoader(testHAR[k], 1024)
+    trainData, testData  = prepareData(datadir, mode = 'central')
+    train = to_dataset(trainData)
+    test = to_dataset(testData)
+
+    print(test)
+
+    trainLoad, testLoad = getDataLoader(train, test, args.batch_size)
 
     model = FFN(input_dim, nclasses)
     logger.info('Model architecture: {0}'.format(model))
     optimizer = optim.Adam(model.parameters(), lr=args.lr )
     loss = nn.CrossEntropyLoss()
-    logger.info('Epoch : {0}, {1}'.format(-1, evaluate(model, testLoad)))
 
     for epoch in range(args.epochs):
-        train_central_one_epoch(model= model, 
+        train_one_epoch(model= model, 
                                 trainloader=trainLoad,
                                 optimizer=optimizer,
                                 loss = loss)
         acc= evaluate(model, testLoad)
         
-        logger.info('Epoch : {0}, {1}'.format(epoch, acc))
+        logger.info('Epoch: {0}, {1}'.format(epoch, acc))
     
     model_out = os.path.join('models', runtimestamp)
     torch.save(model, model_out)

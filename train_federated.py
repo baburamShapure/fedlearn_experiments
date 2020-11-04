@@ -28,43 +28,58 @@ def average_weights(w):
     return w_avg
 
 
-DATADIR = 'fl_data/HHAR'
-FL_AGENTS = os.listdir(DATADIR)
-FL_AGENTS
+if __name__ == '__main__': 
 
-FL_SAMPLE = 0.4
-global_model = FFN(48, 10)
+    runtimestamp = dt.datetime.strftime(dt.datetime.today(), 
+                            '%Y%m%d_%H%M%S')
+    
+    logfile = os.path.join('logs', runtimestamp + '.log')
+    logging.basicConfig(level=logging.INFO, filename=logfile, filemode="a+",
+                        format="%(asctime)-15s %(levelname)-8s %(message)s")
 
-random.sample(FL_AGENTS, 4)
+    #Creating an object 
+    logger=logging.getLogger()   
+    #Setting the threshold of logger to DEBUG 
+    logger.setLevel(logging.DEBUG) 
+    
+    args = args_parser()
+    
+    logger.info('Experiment started')
+    logger.info('Hyper-parameters: {0}'.format(args))
+    
+    # read data.
+    if args.dataset == 'hhar' :
+        input_dim = 48
+        nclasses = 10        
+    else:
+        #TODO other datasets here. Write better switch cases
+        pass 
 
-LOCAL_MODELS = {}
-for each_round in tqdm.tqdm(range(10)): 
-    agents_to_train = random.sample(FL_AGENTS, k= int(FL_SAMPLE * len(FL_AGENTS)))
-    model_list = []
-    for each_agent in agents_to_train: 
-        # read the data. 
-        test, train = [pd.read_csv(os.path.join(DATADIR, each_agent, i)) for i in os.listdir(os.path.join(DATADIR, each_agent))]
-        train = train.fillna(0)
-        test = test.fillna(0)
-        trainData, testData = HARData(train), HARData(test)
-        trainLoader, testLoader = getDataLoader(trainData, testData)
-        loss = nn.CrossEntropyLoss()
-        model = copy.deepcopy(global_model)
-        optimizer = optim.Adam(model.parameters())
-        model.train()
-        for epoch in range(10): 
-            # train each epoch. 
-            for i, (x, y) in enumerate(trainLoader): 
-                yhat = model(x)
-                batch_loss = loss(yhat, y)
-                optimizer.zero_grad()
-                batch_loss.backward()
-                optimizer.step()
-        print('Round: {0}, Agent: {1}'.format(each_round, each_agent))
-        print(get_accuracy(model, testLoader))     
-        LOCAL_MODELS[each_agent] = model # each agents gets to retain its local model.        
-        model_list.append(model.state_dict())
-    # average weight at end of round. 
-    avg_weights = average_weights(model_list)
-    global_model.load_state_dict(avg_weights)
+    trainData, testData  = prepareData(r'fl_data\HHAR')
+    trainHAR = HARData(trainData)
+    testHAR = {}
+    for k in testData.keys():
+        testHAR[k] = HARData(testData[k])
+    trainLoad = getDataLoader(trainHAR, args.batch_size)
+    testLoad = {}
+    for k in testHAR.keys(): 
+        testLoad[k] = getDataLoader(testHAR[k], 1024)
+
+    model = FFN(input_dim, nclasses)
+    logger.info('Model architecture: {0}'.format(model))
+    optimizer = optim.Adam(model.parameters(), lr=args.lr )
+    loss = nn.CrossEntropyLoss()
+
+    for epoch in range(args.epochs):
+        train_one_epoch(model= model, 
+                                trainloader=trainLoad,
+                                optimizer=optimizer,
+                                loss = loss)
+        acc= evaluate(model, testLoad)
+        
+        logger.info('Epoch: {0}, {1}'.format(epoch, acc))
+    
+    model_out = os.path.join('models', runtimestamp)
+    torch.save(model, model_out)
+
 
